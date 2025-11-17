@@ -155,9 +155,7 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
     @Override
     public void onAttachedToEngine(@NonNull final FlutterPluginBinding flutterPluginBinding) {
         this.flutterPluginBinding = flutterPluginBinding;
-        methodChannel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), METHOD_CHANNEL);
-//        Log.d("GGG onAttachedToEngine", "Setting method call handler: " + this);
-        methodChannel.setMethodCallHandler(this);
+        init(flutterPluginBinding.getBinaryMessenger(), flutterPluginBinding.getApplicationContext());
     }
 
     @Override
@@ -167,8 +165,9 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding activityPluginBinding) {
-//        Log.d("GGG onAttachedToActivity", String.format("FFmpegKitFlutterPlugin %s attached to activity %s and context %s.", flutterPluginBinding.getBinaryMessenger(), activityPluginBinding.getActivity(), flutterPluginBinding.getApplicationContext()));
-        init(flutterPluginBinding.getBinaryMessenger(), flutterPluginBinding.getApplicationContext(), activityPluginBinding.getActivity(), activityPluginBinding);
+        Log.d(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin %s attached to activity %s.", this, activityPluginBinding.getActivity()));
+        this.activity = activityPluginBinding.getActivity();
+        activityPluginBinding.addActivityResultListener(this);
     }
 
     @Override
@@ -187,12 +186,9 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
         Log.d(LIBRARY_NAME, "FFmpegKitFlutterPlugin detached from activity.");
     }
 
-
     @SuppressWarnings("deprecation")
-    protected void init(final BinaryMessenger messenger, final Context context, final Activity activity, final ActivityPluginBinding activityBinding) {
+    protected void init(final BinaryMessenger messenger, final Context context) {
         registerGlobalCallbacks();
-
-//        Log.d("GGG onAttachedToActivity", String.format("FFmpegKitFlutterPlugin %s initializing with context %s and activity %s.", this, activityPluginBinding.getActivity()));
 
         if (methodChannel == null) {
             methodChannel = new MethodChannel(messenger, METHOD_CHANNEL);
@@ -209,17 +205,14 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
         }
 
         this.context = context;
-        this.activity = activity;
 
-        activityBinding.addActivityResultListener(this);
-
-        Log.d(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin %s initialised with context %s and activity %s.", this, context, activity));
+        Log.d(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin %s initialised with context %s.", this, context));
     }
 
     @Override
     public void onListen(final Object o, final EventChannel.EventSink eventSink) {
         this.eventSink = eventSink;
-//        Log.d(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin %s started listening to events on %s.", this, eventSink));
+        Log.d(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin %s started listening to events on %s.", this, eventSink));
     }
 
     @Override
